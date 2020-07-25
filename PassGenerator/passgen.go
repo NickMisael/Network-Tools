@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
+	"os"
+	"os/exec"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -10,14 +15,29 @@ var alfabeto = [52]string{"A", "a", "B", "b", "C", "c", "D", "d", "E", "e", "F",
 var num = [10]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 var special = [37]string{`"`, `\`, "?", "|", "!", "@", "'", "#", "%", "¨", "*", "&", "*", "(", " ", ")", "-", "_", "+", "=", "§", ",", ".", "<", ">", ":", ";", "^", "~", "`", "/", "{", "}", "[", "]", "ª", "º"}
 
+func limpaTela() {
+	so := runtime.GOOS
+	if so == "windows" {
+		clear := exec.Command("cmd", "/c", "cls")
+		clear.Stdout = os.Stdout
+		clear.Run()
+	} else if so == "linux" {
+		clear := exec.Command("clear")
+		clear.Stdout = os.Stdout
+		clear.Run()
+	}
+}
+
 func Random(min, max int) int {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return rand.Intn(max-min) + min
 }
 
-func GerarPass(tamf int) (pass string) {
+func GerarPass(tamf int, senha chan string) {
+	var pass string
 	tami := 0
 
+	//ti := time.Now().UnixNano()
 	for {
 		if tami == tamf {
 			break
@@ -40,16 +60,34 @@ func GerarPass(tamf int) (pass string) {
 		}
 		tami += 1
 	}
-	//fmt.Println("Senha ->", pass)
-	return
+	senha <- pass
 }
 
 func main() {
 	var tamanho int
+	senha := make(chan string, 1000)
+	var err error
+	limpaTela()
 	fmt.Printf("Digite o tamanho da senha: ")
-	fmt.Scanf("%d", &tamanho)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		tamanho, err = strconv.Atoi(scanner.Text())
+		if err != nil {
+			fmt.Println("Digite um número!!")
+			time.Sleep(time.Second + 3)
+			limpaTela()
+			fmt.Printf("Digite o tamanho da senha: ")
+		} else {
+			break
+		}
+	}
+	if scanner.Err() != nil {
+		panic(scanner.Err())
+	}
 	if tamanho >= 8 {
-		pass := GerarPass(tamanho)
+		go GerarPass(tamanho, senha)
+		pass := <-senha
+		close(senha)
 		fmt.Println("Senha ->", pass)
 	}
 }
