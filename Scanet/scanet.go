@@ -1,25 +1,28 @@
 package main
 
 import (
+	//"bufio"
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 )
 
-func MyIp(so string) {
-	if so == "1"{
-		eu := exec.Command("ipconfig /all")
-	} else {
-		eu := exec.Command("ip addr show")
+func MyIp() {
+	so := runtime.GOOS
+	if so == "windows" {
+		eu := exec.Command("cmd", "/c", "ipconfig", "/all")
+		eu.Stdout = os.Stdout
+		eu.Run()
+	} else if so == "linux" {
+		eu := exec.Command("ip", "addr", "show")
+		eu.Stdout = os.Stdout
+		str := eu.Run()
+
 	}
 }
 
 func main() {
-	var esc string
-	fmt.Printf("Digite seu Sistema: 1- Windows 2- linux")
-	fmt.Scanf("%s", &esc)
-	if es, err := strconv.Atoi(esc); err != nil or es < 1 or es > 2{
-		fmt.Println("Número Inválido!!")
-	}
-	fmt.Println()
+	MyIp()
+	fmt.Println("Ok")
 }
