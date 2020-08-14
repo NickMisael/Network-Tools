@@ -1,2 +1,2 @@
-# Ferramentas para Rede
-Ferramentas escritas em Go, para auxiliar e facilitar o dia-a-dia com redes
+# Network Tools
+Tools written in Golang, to facilitate some configurations or tests of day-to-day networks
