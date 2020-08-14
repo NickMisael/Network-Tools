@@ -28,16 +28,19 @@ func limpaTela() {
 	}
 }
 
+func CalcTempo(i, f int64) {
+	total := float32((f - i) / 1000000000.0)
+	fmt.Printf("%.3f Segundos Decorridos\n", total)
+}
+
 func Random(min, max int) int {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return rand.Intn(max-min) + min
 }
 
-func GerarPass(tamf int, senha chan string) {
+func GerarPass(tamf int) (string) {
 	var pass string
 	tami := 0
-
-	//ti := time.Now().UnixNano()
 	for {
 		if tami == tamf {
 			break
@@ -60,16 +63,31 @@ func GerarPass(tamf int, senha chan string) {
 		}
 		tami += 1
 	}
-	senha <- pass
+	return pass
 }
 
 func main() {
-	var tamanho int
-	senha := make(chan string, 1000)
+	var tamanho,num int
 	var err error
+	//senha := make(chan string, 1000)
 	limpaTela()
-	fmt.Printf("Digite o tamanho da senha: ")
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("Digite o número de senhas: ")
+	for scanner.Scan() {
+		num, err = strconv.Atoi(scanner.Text())
+		if err != nil {
+			fmt.Println("Digite um número!!")
+			time.Sleep(time.Second + 3)
+			limpaTela()
+			fmt.Printf("Digite o número de senhas: ")
+		} else {
+			break
+		}
+	}
+	if num <= 1 {
+		num = 3
+	}
+	fmt.Printf("Digite o tamanho da senha: ")
 	for scanner.Scan() {
 		tamanho, err = strconv.Atoi(scanner.Text())
 		if err != nil {
@@ -84,10 +102,14 @@ func main() {
 	if scanner.Err() != nil {
 		panic(scanner.Err())
 	}
+	var pass []string
 	if tamanho >= 8 {
-		go GerarPass(tamanho, senha)
-		pass := <-senha
-		close(senha)
-		fmt.Println("Senha ->", pass)
+		for i := 0; i < num; i++{
+			pw := GerarPass(tamanho)
+			pass = append(pass,pw)
+		}
+		for pos,psw := range pass{
+			fmt.Printf("%dº Senha -> %s\n", pos+1, psw)
+		}
 	}
 }
