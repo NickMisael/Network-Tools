@@ -25,8 +25,8 @@ func (d *DNS) Verificar() {
 	for j := 0; j < 10; j++ {
 		for i := 0; i < len(d); i++ {
 			in := time.Now().UnixNano()
-			Address := d[i].Addr + CONN_PORT
-			conn, err := net.Dial(CONN_TYPE, Address)
+			Address := d[i].Addr + ":53"
+			conn, err := net.Dial("tcp", Address)
 			if err != nil {
 				fmt.Println("\tErro:", i)
 				continue
@@ -96,10 +96,6 @@ func (d *DNS) troca() {
 }
 
 func main() {
-	const (
-		CONN_TYPE = "tcp"
-		CONN_PORT = ":53"
-	)
 	d := []DNS{
 		DNS{
 			Nome:  "OpenDns",
