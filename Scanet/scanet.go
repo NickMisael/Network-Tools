@@ -145,7 +145,7 @@ func Verificar() {
 	}
 }
 
-func trocar() {
+func Trocar() {
 	if so == "windows" {
 		fmt.Println("Windows")
 	} else if so == "linux" {
@@ -190,6 +190,6 @@ func main() {
 		Verificar()
 	}
 	if *flagtro {
-		trocar()
+		Trocar()
 	}
 }
