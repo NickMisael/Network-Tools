@@ -172,7 +172,7 @@ func trocar() {
 
 func main() {
 	flagStr := flag.Bool("V", false, "Verificar a melhor opção DNS")
-	flagtro := flag.Bool("T", false, "Verificar a melhor opção DNS")
+	flagtro := flag.Bool("T", false, "Trocar para a melhor opção DNS")
 	flag.Parse()
 	if *flagStr {
 		Verificar()
