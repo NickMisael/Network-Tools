@@ -2,18 +2,12 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
 	"net"
-	"os"
-	"strconv"
+	//"os"
 	"time"
 )
-
-func Menu() {
-	fmt.Println("\t| 1 - Verificar")
-	fmt.Print("\t| -> ")
-}
 
 type DNS struct {
 	Nome  string
@@ -110,6 +104,7 @@ func Verificar() {
 				fmt.Println("\tErro:", i)
 				continue
 			}
+			
 			conn.Close()
 			fi := time.Now().UnixNano()
 			tF := fi - in
@@ -150,32 +145,9 @@ func Verificar() {
 }
 
 func main() {
-	for {
-		var esc string
-		Menu()
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			esc = scanner.Text()
-			break
-		}
-		if scanner.Err() != nil {
-			fmt.Println("Algo deu errado!!")
-		}
-		if esc == ":q!" {
-			break
-		}
-		if es, err := strconv.Atoi(esc); err != nil {
-			fmt.Println("Erro: Número inválido!!")
-
-		} else {
-			switch es {
-			case 1:
-				Verificar()
-
-			}
-			break
-		}
-		time.Sleep(time.Second + 2)
+	flagStr := flag.Bool("V",true,"Verificar a melhor opção DNS")
+	flag.Parse()
+	if *flagStr {
+		Verificar()
 	}
-	fmt.Println("")
 }
