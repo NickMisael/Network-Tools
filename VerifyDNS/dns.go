@@ -20,8 +20,82 @@ type DNS struct {
 	Addr2 string
 	Tempo float32
 }
+var d = []DNS{
+	DNS{
+		Nome:  "OpenDns",
+		Addr:  "208.67.222.222",
+		Addr2: "208.67.220.220",
+	},
+	DNS{
+		Nome:  "Cloudflare",
+		Addr:  "1.1.1.1",
+		Addr2: "1.0.0.1",
+	},
+	DNS{
+		Nome:  "Google",
+		Addr:  "8.8.8.8",
+		Addr2: "8.8.4.4",
+	},
+	DNS{
+		Nome:  "Norton",
+		Addr:  "199.85.126.10",
+		Addr2: "199.85.127.10",
+	},
+	DNS{
+		Nome:  "Verisign",
+		Addr:  "64.6.64.6",
+		Addr2: "64.6.65.6",
+	},
+	DNS{
+		Nome:  "NuSEC",
+		Addr:  "8.26.56.26",
+		Addr2: "8.20.247.20",
+	},
+	DNS{
+		Nome:  "Quad9",
+		Addr:  "9.9.9.9",
+		Addr2: "9.9.9.9",
+	},
+	DNS{
+		Nome:  "Neustar",
+		Addr:  "156.154.70.5",
+		Addr2: "156.154.71.5",
+	},
+	DNS{
+		Nome:  "SafeDNS",
+		Addr:  "195.46.39.39",
+		Addr2: "195.46.39.40",
+	},
+	DNS{
+		Nome:  "Yandex",
+		Addr:  "77.88.8.8",
+		Addr2: "77.88.8.1",
+	},
 
-func (d *DNS) Verificar() {
+	DNS{
+		Nome:  "Level3",
+		Addr:  "209.244.0.3",
+		Addr2: "",
+	},
+
+	/*DNS{
+		Nome:  "SmartViper",
+		Addr:  "208.76.50.50",
+		Addr2: "",
+	},*/
+	DNS{
+		Nome:  "Dyn",
+		Addr:  "216.146.35.35",
+		Addr2: "",
+	},
+	DNS{
+		Nome:  "DNS Watch",
+		Addr:  "84.200.69.80",
+		Addr2: "84.200.70.40",
+	},
+}
+
+func Verificar() {
 	for j := 0; j < 10; j++ {
 		for i := 0; i < len(d); i++ {
 			in := time.Now().UnixNano()
@@ -70,114 +144,41 @@ func (d *DNS) Verificar() {
 	}
 }
 
-func (d *DNS) troca() {
+func trocar() {
 	if so == "windows" {
 		fmt.Println("Windows")
 	} else if so == "linux" {
 		sudo := exec.Command("sudo echo")
 		sudo.Stdout = os.Stdout
 		sudo.Run()
-		file, err := os.Create("/etc/resolv.conf")
+		_, err := os.Create("/etc/resolv.conf")
 		if err != nil {
 			panic(err)
 		}
-		str := fmt.Sprintf("# From DHCP\nnameserver %s\nnameserver %s\n", d.Addr, d.Addr2)
+		str := fmt.Sprintf("# From DHCP\nnameserver %s\nnameserver %s\n", d[0].Addr, d[0].Addr2)
 		err = ioutil.WriteFile("resolv.conf", []byte(str), 0644)
 		if err != nil {
 			panic(err)
 		}
-		cp = exec.Command("sudo cp resolv.conf /etc/resolv.conf")
+		cp := exec.Command("sudo cp resolv.conf /etc/resolv.conf")
 		cp.Stdout = os.Stdout
 		cp.Run()
-		rm = exec.Command("rm -rf resolv.conf")
+		rm := exec.Command("rm -rf resolv.conf")
 		rm.Stdout = os.Stdout
 		rm.Run()
 	}
 }
 
 func main() {
-	d := []DNS{
-		DNS{
-			Nome:  "OpenDns",
-			Addr:  "208.67.222.222",
-			Addr2: "208.67.220.220",
-		},
-		DNS{
-			Nome:  "Cloudflare",
-			Addr:  "1.1.1.1",
-			Addr2: "1.0.0.1",
-		},
-		DNS{
-			Nome:  "Google",
-			Addr:  "8.8.8.8",
-			Addr2: "8.8.4.4",
-		},
-		DNS{
-			Nome:  "Norton",
-			Addr:  "199.85.126.10",
-			Addr2: "199.85.127.10",
-		},
-		DNS{
-			Nome:  "Verisign",
-			Addr:  "64.6.64.6",
-			Addr2: "64.6.65.6",
-		},
-		DNS{
-			Nome:  "NuSEC",
-			Addr:  "8.26.56.26",
-			Addr2: "8.20.247.20",
-		},
-		DNS{
-			Nome:  "Quad9",
-			Addr:  "9.9.9.9",
-			Addr2: "9.9.9.9",
-		},
-		DNS{
-			Nome:  "Neustar",
-			Addr:  "156.154.70.5",
-			Addr2: "156.154.71.5",
-		},
-		DNS{
-			Nome:  "SafeDNS",
-			Addr:  "195.46.39.39",
-			Addr2: "195.46.39.40",
-		},
-		DNS{
-			Nome:  "Yandex",
-			Addr:  "77.88.8.8",
-			Addr2: "77.88.8.1",
-		},
-
-		DNS{
-			Nome:  "Level3",
-			Addr:  "209.244.0.3",
-			Addr2: "",
-		},
-
-		/*DNS{
-			Nome:  "SmartViper",
-			Addr:  "208.76.50.50",
-			Addr2: "",
-		},*/
-		DNS{
-			Nome:  "Dyn",
-			Addr:  "216.146.35.35",
-			Addr2: "",
-		},
-		DNS{
-			Nome:  "DNS Watch",
-			Addr:  "84.200.69.80",
-			Addr2: "84.200.70.40",
-		},
-	}
+	
 	flagStr := flag.Bool("V", false, "Verificar a melhor opção DNS")
 	flagtro := flag.Bool("T", false, "Verificar a melhor opção DNS")
 	flag.Parse()
 	if *flagStr {
-		d.Verificar()
+		Verificar()
 	}
 	if *flagtro {
-		d.trocar()
+		trocar()
 	}
 
 }
