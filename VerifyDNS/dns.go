@@ -20,6 +20,7 @@ type DNS struct {
 	Addr2 string
 	Tempo float32
 }
+
 var d = []DNS{
 	DNS{
 		Nome:  "OpenDns",
@@ -170,7 +171,6 @@ func trocar() {
 }
 
 func main() {
-	
 	flagStr := flag.Bool("V", false, "Verificar a melhor opção DNS")
 	flagtro := flag.Bool("T", false, "Verificar a melhor opção DNS")
 	flag.Parse()
