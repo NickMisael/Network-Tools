@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bufio"
+    "flag"
 	"fmt"
 	"math/rand"
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 	"time"
 )
 
@@ -67,49 +66,24 @@ func GerarPass(tamf int) (string) {
 }
 
 func main() {
-	var tamanho,num int
-	var err error
-	//senha := make(chan string, 1000)
-	limpaTela()
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Printf("Digite o número de senhas: ")
-	for scanner.Scan() {
-		num, err = strconv.Atoi(scanner.Text())
-		if err != nil {
-			fmt.Println("Digite um número!!")
-			time.Sleep(time.Second + 3)
-			limpaTela()
-			fmt.Printf("Digite o número de senhas: ")
-		} else {
-			break
-		}
-	}
-	if num <= 1 {
-		num = 3
-	}
-	fmt.Printf("Digite o tamanho da senha: ")
-	for scanner.Scan() {
-		tamanho, err = strconv.Atoi(scanner.Text())
-		if err != nil {
-			fmt.Println("Digite um número!!")
-			time.Sleep(time.Second + 3)
-			limpaTela()
-			fmt.Printf("Digite o tamanho da senha: ")
-		} else {
-			break
-		}
-	}
-	if scanner.Err() != nil {
-		panic(scanner.Err())
-	}
 	var pass []string
-	if tamanho >= 8 {
-		for i := 0; i < num; i++{
-			pw := GerarPass(tamanho)
+	flagNumPass := flag.Int("n", 0, "Numero de senhas a ser gerado. (entre 1 - 100000)")
+	flagTamPass := flag.Int("t", 7, "Tamanho da senha a ser gerado. (entre 8 - 25)")
+	flagHelp := flag.Bool("h", false, "Guia de Ajuda.")
+	flag.Parse()
+
+	if *flagNumPass >= 1 && *flagTamPass >= 8 && *flagNumPass <= 100000 && *flagTamPass <= 25 {
+		for i := 0; i < *flagNumPass; i++{
+			pw := GerarPass(*flagTamPass)
 			pass = append(pass,pw)
 		}
 		for pos,psw := range pass{
 			fmt.Printf("%dº Senha -> %s\n", pos+1, psw)
 		}
+	}
+
+	if *flagHelp {
+		fmt.Println("-n  -> numero de senhas a ser gerado. (entre 1 - 100000).")
+		fmt.Println("-t -> Tamanho da senha a ser gerado. (entre 8 - 25).")
 	}
 }
