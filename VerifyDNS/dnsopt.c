@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef LINUX
+#include <time.h>
+#ifdef __unix__
     #include <sys/socket.h>
     #include <netdb.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
-#elif WINDOWS
+#elif defined(_WIN32) || defined(WIN32)
+    #include <windows.h>
     #include <winsock2.h>
 #endif
-#include <time.h>
 
 #define PORT 53
 
@@ -32,6 +33,7 @@ dns servers[] = { {"OpenDNS","208.67.222.222","208.67.220.220"}, {"Cloudflare","
 void help(char * arg);
 void verify();
 void change();
+double conn_port(char * host);
 void bubblesort(dns * server);
 void showDnsList();
 
@@ -59,44 +61,53 @@ void help(char * arg){
            "-S - Switch to best DNS option\n", arg);
 }
 void verify(){
-    for(int j = 0; j < 10; j++){
+    for(int j = 0; j < 1; j++){
         for(int i = 0; i < 18; i++){
-            clock_t t;
-            int fd;
-            struct in_addr addr;
-            struct sockaddr_in sock;
-            struct protoent *proto = getprotobyname("tcp");
-
-            memset(&addr, '\0', sizeof(addr));
-            memset(&sock, '\0', sizeof(sock));
-
-            if((fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1){
-                perror("socket");
-                exit(-1);
-            }
-
-            if(!inet_aton(servers[i].paddr, &addr)){
-                fprintf(stderr, "Invalid Address!\n");
-                close(fd);
-                exit(-1);
-            }
-
-            sock.sin_family = AF_INET;
-            sock.sin_addr   = addr;
-            sock.sin_port   = htons(PORT);
-
-            t = clock();
-            if(connect(fd, (struct sockaddr *) &sock, sizeof(sock)) == -1){
-                t = clock() - t;
-                servers[i].time = (((double)t)/((CLOCKS_PER_SEC)/1000));
-            } else {
-                printf("Server %s - esta inacessivel\n", servers[i].nome);
-            }
-            close(fd);
+           servers[i].time = conn_port(servers[i].paddr);
         }
     }
     bubblesort(servers);
     showDnsList();
+}
+
+double conn_port(char * host){
+    double time = 0;
+    clock_t t;
+
+    int fd;
+    struct in_addr addr;
+    struct sockaddr_in sock;
+    struct protoent *proto = getprotobyname("tcp");
+
+    memset(&addr, 0, sizeof(addr));
+    memset(&sock, 0, sizeof(sock));
+
+    if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1){
+        perror("socket");
+        exit(-1);
+    }
+
+    if(!inet_aton(host, &addr)){
+        fprintf(stderr, "Invalid Address!\n");
+        close(fd);
+        exit(-1);
+    }
+
+    sock.sin_family = AF_INET;
+    sock.sin_addr   = addr;
+    sock.sin_port   = htons(PORT);
+
+    t = clock();
+    if(connect(fd, (struct sockaddr *) &sock, sizeof(sock)) == -1){
+        printf("Server %s - esta inacessivel\n", host);
+        perror("connect");
+    } else {
+        t = clock() - t;
+        time = (((double)t)/((CLOCKS_PER_SEC)/1000));
+    }
+    close(fd);
+
+    return time;
 }
 
 void change(){
