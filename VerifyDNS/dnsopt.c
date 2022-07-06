@@ -69,7 +69,7 @@ void help(char * arg){
     printf("Example of use:\n"
            "%s [option of use]\n"
            "-C - Check the best DNS option\n"
-           "-S - Switch to best DNS option\n", arg);
+           "-S - Switch to best DNS option [for this option it is neccessary elevated permissions]\n", arg);
 }
 void verify(){
     for(int j = 0; j < 1; j++){
@@ -178,7 +178,12 @@ void change(){
 
         fclose(fp);
 
-        system("cp resolv.conf /etc/resolv.conf");
+       if( (system("cp resolv.conf /etc/resolv.conf")) == -1){
+           printf("Failed execution, permission is not sufficient");
+           system("rm -rf resolv.conf");
+           perror("system");
+           exit(-1);
+       }
         system("rm -rf resolv.conf");
     #else
         int size = count("wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder () && wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder (\"\",\"\")\"}") + count(servers[0].paddr) + count(servers[0].saddr);
@@ -193,10 +198,9 @@ void change(){
 
         printf("%s\n",resolv);
         system(resolv);
-
-        printf("Update successfully! :D");
-
     #endif
+
+     printf("Update successfully! :D\n");
 }
 
 void bubblesort(dns * server) {
