@@ -43,6 +43,7 @@ void change();
 double conn_port(char * host);
 void bubblesort(dns * server);
 void showDnsList();
+int count(char * txt);
 
 int main(int argc, char **argv) {
 
@@ -55,6 +56,9 @@ int main(int argc, char **argv) {
         verify();
     } else if((strcmp(argv[1],"-S")) == 0){
         change();
+    } else {
+        help(argv[0]);
+        exit(-1);
     }
 
 
@@ -137,10 +141,10 @@ double conn_port(char * host){
     } else {
         #ifdef OS_WINDOWS
             t = clock() - t;
-            time = ((double)t)/((CLOCKS_PER_SEC)/1000);
+            time = ((double)t)/1000;
         #else
             t = clock() - t;
-            time = (((double)t)/(CLOCKS_PER_SEC));
+            time = (((double)t)/((CLOCKS_PER_SEC)/1000));
         #endif
     }
 
@@ -154,7 +158,45 @@ double conn_port(char * host){
 }
 
 void change(){
-    printf("teste");
+    verify();
+    #ifdef OS_LINUX
+        FILE * fp;
+
+        if((fp = fopen("resolv.conf","wb+")) == NULL){
+            printf("No have sufficient permissions!");
+            perror("fopen");
+            exit(-1);
+        }
+
+        int size = count("# From DHCP\ndomain localdomain\n# SERVER \nnameserver \nnameserver \n") + count(servers[0].nome) + count(servers[0].paddr) + count(servers[0].saddr);
+
+        char resolv[size];
+        memset(resolv, 0, sizeof(resolv));
+
+        sprintf(resolv,"# From DHCP\ndomain localdomain\n# SERVER %s\nnameserver %s\nnameserver %s\n",servers[0].nome,servers[0].paddr, servers[0].saddr);
+        fwrite(resolv,sizeof(char), size,fp);
+
+        fclose(fp);
+
+        system("cp resolv.conf /etc/resolv.conf");
+        system("rm -rf resolv.conf");
+    #else
+        int size = count("wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder () && wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder (\"\",\"\")\"}") + count(servers[0].paddr) + count(servers[0].saddr);
+
+        char resolv[size];
+        memset(resolv, 0, sizeof(resolv));
+
+        //sprintf(resolv,"Get-NetAdapter -Physical | where status -eq 'up' | ForEach-Object{if($_.Name){$al = '{0}' -f $_.Name} Set-DnsClientServerAddress -InterfaceAlias $al -ServerAddresses %s,%s",servers[0].nome,servers[0].paddr, servers[0].saddr);
+
+        sprintf(resolv,"wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder () && wmic nicconfig where (IPEnabled=TRUE) call SetDNSServerSearchOrder (\"%s\",\"%s\")",servers[0].paddr, servers[0].saddr);
+
+
+        printf("%s\n",resolv);
+        system(resolv);
+
+        printf("Update successfully! :D");
+
+    #endif
 }
 
 void bubblesort(dns * server) {
@@ -189,4 +231,12 @@ void showDnsList(){
 			printf("\t|_________________________________________|\n");
 		}
 	}
+}
+
+int count(char * txt){
+    int size = 0;
+    for( ; *txt != '\0'; txt++,size++)
+        ;
+
+    return size;
 }
