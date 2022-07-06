@@ -4,14 +4,21 @@
 #include <unistd.h>
 #include <time.h>
 #ifdef __unix__
+    #define OS_LINUX
     #include <sys/socket.h>
     #include <netdb.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
 #elif defined(_WIN32) || defined(WIN32)
+    #define OS_WINDOWS
     #include <windows.h>
+    #include <winsock.h>
     #include <winsock2.h>
+    #pragma comment(lib,"ws2_32.lib")
+    #pragma comment(lib, "ws2_32")
 #endif
+
+
 
 #define PORT 53
 
@@ -74,38 +81,74 @@ double conn_port(char * host){
     double time = 0;
     clock_t t;
 
-    int fd;
-    struct in_addr addr;
-    struct sockaddr_in sock;
-    struct protoent *proto = getprotobyname("tcp");
+    #ifdef OS_LINUX
+        int fd;
+        struct protoent *proto = getprotobyname("tcp");
+        struct in_addr addr;
 
-    memset(&addr, 0, sizeof(addr));
+        memset(&addr, 0, sizeof(addr));
+    #else
+        WSADATA wsa;
+        SOCKET fd;
+    #endif
+
+    struct sockaddr_in sock;
+
     memset(&sock, 0, sizeof(sock));
 
-    if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1){
-        perror("socket");
-        exit(-1);
-    }
+    #ifdef OS_LINUX
+        if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1){
+            perror("socket");
+            exit(-1);
+        }
+        if(!inet_aton(host, &addr)){
+            fprintf(stderr, "Invalid Address!\n");
+            close(fd);
+            exit(-1);
+        }
 
-    if(!inet_aton(host, &addr)){
-        fprintf(stderr, "Invalid Address!\n");
-        close(fd);
-        exit(-1);
-    }
+        sock.sin_family = AF_INET;
+        sock.sin_addr   = addr;
+        sock.sin_port   = htons(PORT);
+    #else
+        if(WSAStartup(MAKEWORD(2,2),&wsa) != 0){
+            printf("Failed. Error Code : %d",WSAGetLastError());
+            return 1;
+        }
+        if((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET){
+            perror("socket");
+            WSACleanup;
+            exit(-1);
+        }
 
-    sock.sin_family = AF_INET;
-    sock.sin_addr   = addr;
-    sock.sin_port   = htons(PORT);
+        sock.sin_addr.s_addr   = inet_addr(host);
+        sock.sin_family        = AF_INET;
+        sock.sin_port          = htons(PORT);
+    #endif
 
     t = clock();
     if(connect(fd, (struct sockaddr *) &sock, sizeof(sock)) == -1){
         printf("Server %s - esta inacessivel\n", host);
         perror("connect");
+        #ifdef OS_WINDOWS
+            WSACleanup;
+        #endif // OS_WINDOWS
+
     } else {
-        t = clock() - t;
-        time = (((double)t)/((CLOCKS_PER_SEC)/1000));
+        #ifdef OS_WINDOWS
+            t = clock() - t;
+            time = ((double)t)/((CLOCKS_PER_SEC)/1000);
+        #else
+            t = clock() - t;
+            time = (((double)t)/(CLOCKS_PER_SEC));
+        #endif
     }
-    close(fd);
+
+    #ifdef OS_LINUX
+        close(fd);
+    #else
+        closesocket(fd);
+    #endif
 
     return time;
 }
@@ -141,7 +184,7 @@ void showDnsList(){
         printf("\t| %s \n", servers[i].nome);
 		printf("\t| P: %s \n", servers[i].paddr);
 		printf("\t| S: %s \n", servers[i].saddr);
-		printf("\t| %.2f milisegundos \n", servers[i].time);
+		printf("\t| %.4lf milisegundos \n", servers[i].time);
 		if(i == 18-1){
 			printf("\t|_________________________________________|\n");
 		}
