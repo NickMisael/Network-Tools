@@ -30,12 +30,12 @@ typedef struct
     double time;
 } dns;
 
-dns servers[] = { {"OpenDNS","208.67.222.222","208.67.220.220",0}, {"Cloudflare","1.1.1.1","1.0.0.1",0}, {"Google","8.8.8.8","8.8.4.4",0},
-                  {"Norton","199.85.126.10","199.85.127.10",0}, {"Verisign", "64.6.64.6","64.6.65.6",0}, {"NuSEC","8.26.56.26","8.20.247.20",0},
-                  {"Quad9","9.9.9.9","149.112.112.112",0}, {"Neustar","156.154.70.5","156.154.71.5",0}, {"SafeDNS","195.46.39.39","195.46.39.40",0},
-                  {"Yandex","77.88.8.8","77.88.8.1",0}, {"AdGuard DNS","94.140.14.14","94.140.15.15",0}, {"Alternate DNS","76.76.19.19","76.223.122.150",0},
-                  {"CleanBrowsing","185.228.168.9","185.228.169.9",0}, {"Ultra DNS","64.6.64.6","64.6.65.6",0}, {"Oracle Dyn DNS","216.146.35.35","216.146.36.36",0},
-                  {"Level3 DNS", "209.244.0.3","209.244.0.4",0}, {"Comodo Secure DNS","8.26.56.26","8.20.247.20",0}, {"Freenom World DNS", "80.80.80.80", "80.80.80.81",0}};
+dns servers[] = { {"OpenDNS","208.67.222.222","208.67.220.220"}, {"Cloudflare","1.1.1.1","1.0.0.1"}, {"Google","8.8.8.8","8.8.4.4"},
+                  {"Norton","199.85.126.10","199.85.127.10"}, {"Verisign", "64.6.64.6","64.6.65.6"}, {"NuSEC","8.26.56.26","8.20.247.20"},
+                  {"Quad9","9.9.9.9","149.112.112.112"}, {"Neustar","156.154.70.5","156.154.71.5"}, {"SafeDNS","195.46.39.39","195.46.39.40"},
+                  {"Yandex","77.88.8.8","77.88.8.1"}, {"AdGuard DNS","94.140.14.14","94.140.15.15"}, {"Alternate DNS","76.76.19.19","76.223.122.150"},
+                  {"CleanBrowsing","185.228.168.9","185.228.169.9"}, {"Ultra DNS","64.6.64.6","64.6.65.6"}, {"Oracle Dyn DNS","216.146.35.35","216.146.36.36"},
+                  {"Level3 DNS", "209.244.0.3","209.244.0.4"}, {"Comodo Secure DNS","8.26.56.26","8.20.247.20"}, {"Freenom World DNS", "80.80.80.80", "80.80.80.81"}};
 
 void help(char * arg);
 void verify();
@@ -172,12 +172,12 @@ void change(){
             exit(-1);
         }
 
-        int size = count("# From DHCP\ndomain localdomain\n# SERVER \nnameserver \nnameserver \n") + count(servers[0].nome) + count(servers[0].paddr) + count(servers[0].saddr);
+        int size = count("# From DHCP\n# SERVER \nnameserver \nnameserver \n") + count(servers[0].nome) + count(servers[0].paddr) + count(servers[0].saddr);
 
         char resolv[size];
         memset(resolv, 0, sizeof(resolv));
 
-        sprintf(resolv,"# From DHCP\ndomain localdomain\n# SERVER %s\nnameserver %s\nnameserver %s\n",servers[0].nome,servers[0].paddr, servers[0].saddr);
+        sprintf(resolv,"# From DHCP\n# SERVER %s\nnameserver %s\nnameserver %s\n",servers[0].nome,servers[0].paddr, servers[0].saddr);
         fwrite(resolv,sizeof(char), size,fp);
 
         fclose(fp);
