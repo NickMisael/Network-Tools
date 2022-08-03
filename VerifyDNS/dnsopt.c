@@ -47,14 +47,14 @@ int count(char * txt);
 
 int main(int argc, char **argv) {
 
-    if(argc != 2){
+    if(argc != 2) {
         help(argv[0]);
         exit(-1);
     }
 
-    if((strcmp(argv[1],"-C")) == 0){
+    if(!(strcmp(argv[1],"-C"))) {
         verify();
-    } else if((strcmp(argv[1],"-S")) == 0){
+    } else if(!(strcmp(argv[1],"-S"))) {
         change();
     } else {
         help(argv[0]);
@@ -73,11 +73,11 @@ void help(char * arg){
 }
 void verify(){
     for(int j = 0; j < 10; j++){
-        for(int i = 0; i < 18; i++){
+        for(int i = 0; i < 18; i++) {
            servers[i].time += conn_port(servers[i].paddr);
         }
     }
-    for(int i = 0; i < 18; i++){
+    for(int i = 0; i < 18; i++) {
         servers[i].time /= 10;
     }
 
@@ -85,7 +85,7 @@ void verify(){
     showDnsList();
 }
 
-double conn_port(char * host){
+double conn_port(char * host) {
     double time = 0;
     clock_t t;
 
@@ -105,11 +105,11 @@ double conn_port(char * host){
     memset(&sock, 0, sizeof(sock));
 
     #ifdef OS_LINUX
-        if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1){
+        if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1) {
             perror("socket");
             exit(-1);
         }
-        if(!inet_aton(host, &addr)){
+        if(!inet_aton(host, &addr)) {
             fprintf(stderr, "Invalid Address!\n");
             close(fd);
             exit(-1);
@@ -119,11 +119,11 @@ double conn_port(char * host){
         sock.sin_addr   = addr;
         sock.sin_port   = htons(PORT);
     #else
-        if(WSAStartup(MAKEWORD(2,2),&wsa) != 0){
+        if(WSAStartup(MAKEWORD(2,2),&wsa)) {
             printf("Failed. Error Code : %d",WSAGetLastError());
             return 1;
         }
-        if((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET){
+        if( (fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
             perror("socket");
             WSACleanup;
             exit(-1);
