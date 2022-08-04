@@ -37,13 +37,13 @@ dns servers[] = { {"OpenDNS","208.67.222.222","208.67.220.220"}, {"Cloudflare","
                   {"CleanBrowsing","185.228.168.9","185.228.169.9"}, {"Ultra DNS","64.6.64.6","64.6.65.6"}, {"Oracle Dyn DNS","216.146.35.35","216.146.36.36"},
                   {"Level3 DNS", "209.244.0.3","209.244.0.4"}, {"Comodo Secure DNS","8.26.56.26","8.20.247.20"}, {"Freenom World DNS", "80.80.80.80", "80.80.80.81"}};
 
-void help(char * arg);
+void help(char *);
 void verify();
 void change();
-double conn_port(char * host);
-void bubblesort(dns * server);
+double conn_port(char *);
+void bubblesort(dns *);
 void showDnsList();
-int count(char * txt);
+int count(char *);
 
 int main(int argc, char **argv) {
 
