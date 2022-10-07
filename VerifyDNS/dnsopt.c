@@ -44,6 +44,7 @@ double conn_port(char *);
 void bubblesort(dns *);
 void showDnsList();
 int count(char *);
+void ec_socket(
 
 int main(int argc, char **argv) {
 
@@ -106,7 +107,7 @@ double conn_port(char * host) {
 
     #ifdef OS_LINUX
         if( (fd = socket(AF_INET, SOCK_STREAM, proto->p_proto)) == -1) {
-            perror("socket");
+            perror("socket")~ç;;
             exit(-1);
         }
         if(!inet_aton(host, &addr)) {
@@ -226,11 +227,11 @@ void showDnsList(){
 	printf("\t|_________________________________________|\n");
 	printf("\t|                                         |\n");
 	for(int i = 0; i < 18; i++){
-		printf("\t|-----------------------------------------|\n");
-        printf("\t| %s \n", servers[i].nome);
-		printf("\t| P: %s \n", servers[i].paddr);
-		printf("\t| S: %s \n", servers[i].saddr);
-		printf("\t| %.4lf milisegundos \n", servers[i].time);
+		printf("\t|-----------------------------------------|\n"
+		       "\t| %s \n"
+		      "\t| P: %s \n" 
+		      "\t| S: %s \n"
+		      "\t| %.2f milisegundos \n", servers[i].nome,servers[i].paddr, servers[i].saddr,servers[i].time);
 		if(i == 18-1){
 			printf("\t|_________________________________________|\n");
 		}
